@@ -101,7 +101,7 @@ def load_targets(catalogue, ra_min, ra_max, dec_min, dec_max, gal_lat_limit,
     # make RA cuts, but DEC will now be above the celestial equator, and we'll
     # have more stars on the plane.
     dec_max += 3
-    gal_lat_lim -= 3
+    gal_lat_limit -= 3
     
     start = time.time()
     all_targets = []
