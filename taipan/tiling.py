@@ -127,7 +127,7 @@ def is_within_bounds(tile, ra_min, ra_max, dec_min, dec_max,
         function to ensure the bounds are in standard format. Defaults to True.
     
     gal_lat_limit: float
-        Absolute value, |b|, indicating whether to exclude part of the galacti
+        Absolute value, |b|, indicating whether to exclude part of the galactic
         plane.
         
     Returns

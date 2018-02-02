@@ -91,6 +91,18 @@ def load_targets(catalogue, ra_min, ra_max, dec_min, dec_max, gal_lat_limit,
         print ("Loaded target priorities in %d:%02.1f") % (delta/60, 
                                                            delta % 60.)
     
+    # RA, DEC, and |b| cuts are for tile *centres*. If we use the same values 
+    # for targets, we end up with tiles that only have a fraction of their area
+    # available to select targets from, reducing survey efficiency. For that 
+    # purpose, here we will modify the DEC and |b| limits by +3 degrees (a tile
+    # radius - the maximum a tile would be bisected, as any more would result 
+    # in it not being selected initially) so that we can fully fill the tiles.
+    # RA will not be modified at this stage as FunnelWeb is not expected to 
+    # make RA cuts, but DEC will now be above the celestial equator, and we'll
+    # have more stars on the plane.
+    dec_max += 3
+    gal_lat_lim -= 3
+    
     start = time.time()
     all_targets = []
     
@@ -429,7 +441,7 @@ except NameError:
                                fwts.tiler_input["ra_max"], 
                                fwts.tiler_input["dec_min"], 
                                fwts.tiler_input["dec_max"],
-                               fwts.script_settings["gal_lat_limit"],
+                               fwts.tiler_input["gal_lat_limit"],
                                fwts.script_settings["tab_type"],
                                fwts.script_settings["input_priorities"], 
                                fwts.tiler_input["priority_normal"], 

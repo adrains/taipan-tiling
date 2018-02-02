@@ -46,7 +46,7 @@ class FWTiler(object):
                  ranking_method='priority-expsum', disqualify_below_min=True, 
                  tiling_method='SH', randomise_pa=True, randomise_SH=True, 
                  tiling_file='ipack.3.8192.txt', ra_min=0.0, ra_max=360.0, 
-                 dec_min=-90.0, dec_max=90.0, 
+                 dec_min=-90.0, dec_max=90.0, gal_lat_limit=10,
                  mag_ranges=[[5,8],[7,10],[9,12],[11,14]],
                  mag_ranges_prioritise=[[5,7],[7,8],[9,10],[11,12]], 
                  priority_normal=2, prioritise_extra=2, 
@@ -99,6 +99,9 @@ class FWTiler(object):
             The RA and Dec bounds of the region to be considered, in decimal 
             degrees. To have an RA range spanning across 0 deg RA, either use a
             negative value for ra_min, or give an ra_min > ra_max.
+        
+        gal_lat_limit: float
+            |b|, the Galactic plane limit to not consider tile centres within.
         
         mag_ranges: list
             The magnitude ranges for each set of tiles, of the form:
@@ -197,6 +200,7 @@ class FWTiler(object):
         self._dec_min = None
         self._dec_max = None
         self._mag_ranges = None
+        self._gal_lat_limit = None
         self._mag_ranges_prioritise = None
         self._priority_normal = None
         self._prioritise_extra = None
@@ -232,6 +236,7 @@ class FWTiler(object):
         self.ra_max = ra_max
         self.dec_min = dec_min
         self.dec_max = dec_max
+        self.gal_lat_limit = gal_lat_limit
         self.mag_ranges = mag_ranges
         self.mag_ranges_prioritise = mag_ranges_prioritise
         self.priority_normal = priority_normal
@@ -401,6 +406,16 @@ class FWTiler(object):
         if value is None: 
             raise Exception('dec_max may not be blank')
         self._dec_max = value
+        
+    @property
+    def gal_lat_limit(self):
+        return self._gal_lat_limit
+
+    @gal_lat_limit.setter
+    def gal_lat_limit(self, value):
+        if value is None: 
+            raise Exception('gal_lat_limit may not be blank')
+        self._gal_lat_limit = value   
         
     @property
     def mag_ranges(self):
@@ -674,7 +689,7 @@ class FWTiler(object):
     def is_within_bounds(self, tile, compute_bounds_forcoords=True):
         """FWTiler wrapper for:
          tiling.is_within_bounds(tile, ra_min, ra_max, dec_min, dec_max, 
-                                 compute_bounds_forcoords=True)
+                                 compute_bounds_forcoords=True, gal_lat_limit)
                                     
         Parameters
         ----------
@@ -693,7 +708,7 @@ class FWTiler(object):
         """
         return tl.is_within_bounds(tile, self.ra_min, self.ra_max, 
                                    self.dec_min, self.dec_max, 
-                                   compute_bounds_forcoords)
+                                   compute_bounds_forcoords, gal_lat_limit)
     
     
     def generate_random_tile(self):
@@ -2130,6 +2145,7 @@ class FWTiler(object):
         self.compute_bounds()
 
         # Generate the SH tiling to cover the region of interest
+        # Note: this includes RA, DEC, and |b| constraints
         candidate_tiles = self.generate_SH_tiling()
         candidate_tiles = [tile for tile in candidate_tiles 
                            if self.is_within_bounds(tile)]
