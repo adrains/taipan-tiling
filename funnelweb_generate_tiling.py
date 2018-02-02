@@ -395,7 +395,7 @@ update_taipan_quadrants()
 
 # Save a copy of the settings file for future reference
 # The file will be appropriately timestamped on completion of the tiling
-temp_timestamp = time.strftime("%y%d%m_%H%M_%S_")
+temp_timestamp = time.strftime("%y%m%d_%H%M_%S_")
 settings_file = "funnelweb_tiling_settings.py"
 temp_settings_file = "results/temp_" + temp_timestamp + settings_file
 copyfile(settings_file, temp_settings_file)
@@ -403,10 +403,11 @@ copyfile(settings_file, temp_settings_file)
 # Prompt user for the description or motivation of the run
 run_description = raw_input("Description/motivation for tiling run: ")
 
+ra_range = fwts.tiler_input["ra_max"] - fwts.tiler_input["ra_min"]
+dec_range = fwts.tiler_input["dec_max"] - fwts.tiler_input["dec_min"]
+
 # No description given, assign one based on on-sky area, machine, and # cores
 if run_description == "": 
-    ra_range = fwts.tiler_input["ra_max"] - fwts.tiler_input["ra_min"]
-    dec_range = fwts.tiler_input["dec_max"] - fwts.tiler_input["dec_min"]
     run_description = "%s, %ix%i, backend=%s, n_cores=%i" % (platform.node(),
                                                 ra_range, dec_range, 
                                                 fwts.tiler_input["backend"],
@@ -524,7 +525,7 @@ print "%i total targets, %i unique targets, %i duplicate targets" % \
 # Saving Tiling Outputs
 #------------------------------------------------------------------------------
 # Use time stamp as run ID
-date_time = time.strftime("%y%d%m_%H%M_%S_")
+date_time = time.strftime("%y%m%d_%H%M_%S_")
 
 # Document the settings and results of the tiling run
 # Dictionary used to easily load results/settings of past runs, OrderedDict so 
