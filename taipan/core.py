@@ -25,6 +25,7 @@ import numpy as np
 from matplotlib.cbook import flatten
 from scipy.spatial import cKDTree
 from sklearn.neighbors import KDTree as skKDTree
+from collections import Counter
 
 #XXX
 #import matplotlib.pyplot as plt
@@ -3296,6 +3297,22 @@ class TaipanTile(TaipanPoint):
 
         ranking_score = float(ranking_score)
         return ranking_score
+
+    def count_target_priorities(self):
+        """Counts the number of targets at each priority level for this tile.
+        
+        Returns
+        -------
+        priority_count: Counter
+            collections.Counter object, containing a dictionary with keys of
+            each priority level, and values corresponding to each time it 
+            appears.
+        """
+        science_targets = self.get_assigned_targets_science()
+        target_priorities = [target.priority for target in science_targets]
+        priority_count = Counter(target_priorities)
+        
+        return priority_count
 
     def set_fibre(self, fibre, tgt):
         """

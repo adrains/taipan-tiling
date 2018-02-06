@@ -12,6 +12,7 @@ Notes about this script:
 import taipan.core as tp
 import taipan.tiling as tl
 import taipan.fwtiling as fwtl
+import taipan.fwplot as fwplt
 from taipan.fwtiling import FWTiler
 from astropy.table import Table
 import random
@@ -24,7 +25,6 @@ import cPickle
 import time
 import os
 import platform
-import funnelweb_plotting as fwplt
 import funnelweb_tiling_settings as fwts
 from shutil import copyfile
 from collections import OrderedDict
@@ -408,10 +408,10 @@ dec_range = fwts.tiler_input["dec_max"] - fwts.tiler_input["dec_min"]
 
 # No description given, assign one based on on-sky area, machine, and # cores
 if run_description == "": 
-    run_description = "%s, %ix%i, backend=%s, n_cores=%i" % (platform.node(),
-                                                ra_range, dec_range, 
-                                                fwts.tiler_input["backend"],
-                                                fwts.tiler_input["n_cores"])
+    run_description = "%s, %ix%i, |b|=%0.2f, completion=%s" % (platform.node(),
+                                   ra_range, dec_range, 
+                                   fwts.tiler_input["gal_lat_limit"],
+                                   fwts.tiler_input["completeness_targets"])
 
 # Begin logging, ensuring creation of a new log file handler unique to this run
 log_file = "funnelweb_generate_tiling.log"
@@ -429,13 +429,15 @@ try:
     # Check to see if we already have the targets imported, thus saving time
     if all_targets:
         print "Previously loaded catalogue will be used,",
-        print "on-sky area: %ix%i" % (ra_range, dec_range)
+        print "on-sky area: %ix%i, " % (ra_range, dec_range),
+        print "|b| = %0.2f" % fwts.tiler_input["gal_lat_limit"]
         
 except NameError:
     # Not already imported, import targets and generate TaipanTarget objects
     cat = fwts.script_settings["input_catalogue"].split("/")[-1]
-    print "Importing catalogue '%s' for on-sky area: %ix%i" % (cat, ra_range, 
-                                                               dec_range)
+    print "Importing catalogue '%s' for on-sky area: %ix%i, " % (cat, ra_range, 
+                                                                 dec_range),
+    print "|b| = %0.2f" % fwts.tiler_input["gal_lat_limit"]
 
     all_targets = load_targets(fwts.script_settings["input_catalogue"],
                                fwts.tiler_input["ra_min"], 
@@ -483,6 +485,7 @@ print "Commencing tiling with %i core/s using" % (fwts.tiler_input["n_cores"]),
 print "%i science," % len(candidate_targets), 
 print "%i standard" % len(standard_targets),
 print "%i guide, & %i sky targets\n" % (len(guide_targets), len(sky_targets))
+print "Completion targets: %s" % fwts.tiler_input["completeness_targets"]
                                                                  
 start = datetime.datetime.now()
 tiling, completeness, leftover_fwt = fwtiler.generate_tiling(candidate_targets, 
