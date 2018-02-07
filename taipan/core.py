@@ -2399,7 +2399,7 @@ class FWTarget(TaipanTarget):
     def __init__(self, idn, ra, dec, usposn=None, priority=1, standard=False,
                  guide=False, difficulty=0, mag=None,
                  h0=False, vpec=False, lowz=False, science=True,
-                 assign_science=True, sky=False):
+                 assign_science=True, sky=False, gal_lat=None):
         """
         Parameters
         ----------
@@ -2432,11 +2432,25 @@ class FWTarget(TaipanTarget):
             flags? Defaults to True
         sky: boolean
             Denotes this target as a science target. Defaults to False.
+        gal_lat: float or None
+            The Galactic latitude of the target
         """
         # Initialise the base class
         TaipanTarget.__init__(self, idn, ra, dec, usposn, priority, standard,
                               guide, difficulty, mag, h0, vpec, lowz, science,
                               assign_science, sky)
+        
+        self._gal_lat = None
+        self.gal_lat = gal_lat
+        
+        @property
+        def gal_lat(self):
+            return self._gal_lat
+
+        @gal_lat.setter
+        def gal_lat(self, value):
+            value = float(value)
+            self._gal_lat = value
         
     def __repr__(self):
         return 'FW TGT %s' % str(self._idn)

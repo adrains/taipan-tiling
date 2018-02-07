@@ -101,7 +101,9 @@ def load_targets(catalogue, ra_min, ra_max, dec_min, dec_max, gal_lat_limit,
     # make RA cuts, but DEC will now be above the celestial equator, and we'll
     # have more stars on the plane.
     dec_max += 3
-    gal_lat_limit -= 3 # FIX!
+    
+    if gal_lat_limit > 3:
+        gal_lat_limit -= 3
     
     start = time.time()
     all_targets = []
@@ -145,6 +147,10 @@ def load_targets(catalogue, ra_min, ra_max, dec_min, dec_max, gal_lat_limit,
                 # Target is acceptable, create with tiling parameters
                 priority = get_target_priority(star["Gaia_ID"], priorities, 
                                                priority_normal)
+                
+                # Determine |b|
+                tile_gal_coord = SkyCoord(ra=tile.ra*units.degree, 
+                                          dec=tile.dec*units.degree).galactic
                                                
                 target = tp.FWTarget(int(star["Gaia_ID"]), star["RA_ep2015"], 
                                      star["Dec_ep2015"], priority=priority, 

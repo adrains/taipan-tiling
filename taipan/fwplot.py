@@ -13,7 +13,7 @@ from itertools import cycle
 from matplotlib.backends.backend_pdf import PdfPages
 import glob
 
-def plot_tile_pos(fig, gs, tiling):
+def plot_tile_pos(fig, gs, tiling, axis_siz=5):
     """
     """
     # Plot an Aitoff projection of the tile centre positions on-sky
@@ -34,12 +34,13 @@ def plot_tile_pos(fig, gs, tiling):
     # Colour bar
     ax_tile_pos_plt.set_clim([np.min(coords[:,2]), np.max(coords[:,2])])
     cbar = plt.colorbar(ax_tile_pos_plt, orientation='horizontal')
-    cbar.set_label("# Tiles")
+    cbar.set_label("# Tiles", fontsize=axis_siz)
     
     ax_tile_pos.tick_params(axis='both', which='major', labelsize=5)
     ax_tile_pos.tick_params(axis='both', which='minor', labelsize=5)
     
     return ax_tile_pos
+    
     
 def plot_box_and_whisker(fig, gs, gs_range, targets_per_tile, 
                          standards_per_tile, guides_per_tile):
@@ -52,6 +53,7 @@ def plot_box_and_whisker(fig, gs, gs_range, targets_per_tile,
     ax_bw.set_title('Box-and-whisker plots of number of assignments')
     
     return ax_bw
+    
     
 def plot_tile_vs_completeness(fig, gs, gs_range, targets_per_tile, tiling, 
                               run_settings):
@@ -86,6 +88,7 @@ def plot_tile_vs_completeness(fig, gs, gs_range, targets_per_tile, tiling,
     
     return ax_compl
     
+    
 def plot_settings_table(fig, gs, run_settings):
     """
     """
@@ -116,16 +119,17 @@ def plot_settings_table(fig, gs, run_settings):
         #settings_tab.scale(1.0, 0.6)
     #else:
     settings_tab.auto_set_font_size(False)
-    settings_tab.set_fontsize(9.5)
-        #settings_tab.scale(2.2, 1.2)
+    settings_tab.set_fontsize(4)
+    #settings_tab.scale(2.2, 1.2)
     
-    ax_tab.set_title("Run Settings & Overview", y=0.96)
+    ax_tab.set_title("Run Settings & Overview")#, y=0.96, )
     
     return ax_tab    
     
+    
 def plot_targets_per_tile(fig, gs, target_count_by_range, targets_per_tile,
                           run_settings, colour, i, label, unique_targets_range,
-                          tiles_by_mag_range):
+                          tiles_by_mag_range, leg_siz=4, axis_siz=5):
     """
     """
     # Plot a histogram of the number of targets per tile
@@ -135,13 +139,13 @@ def plot_targets_per_tile(fig, gs, target_count_by_range, targets_per_tile,
                  color=colour, align='right', label=label)
     ax_tar_pt.vlines(run_settings["TARGET_PER_TILE"], ax_tar_pt.get_ylim()[0],  
                    ax_tar_pt.get_ylim()[1], linestyles='dashed', colors='k', 
-                   label='Ideally-filled tile')
-    ax_tar_pt.legend(loc='upper center')
-    ax_tar_pt.set_xlabel('No. of targets per tile')
-    ax_tar_pt.set_ylabel('Frequency')
+                   label='Ideally-filled tile', linewidth=1)
+    ax_tar_pt.legend(loc='upper center', prop={'size': leg_siz})
+    ax_tar_pt.set_xlabel('No. of targets per tile', fontsize=axis_siz)
+    ax_tar_pt.set_ylabel('Frequency', fontsize=axis_siz)
     ax_tar_pt.set_yscale('log')
     ax_tar_pt.set_xlim(0, max(targets_per_tile) + 1)
-    ax_tar_pt.xaxis.set_major_locator(ticker.MultipleLocator(10))
+    ax_tar_pt.xaxis.set_major_locator(ticker.MultipleLocator(20))
     
     ax_tar_pt.tick_params(axis='both', which='major', labelsize=5)
     ax_tar_pt.tick_params(axis='both', which='minor', labelsize=5)
@@ -159,25 +163,25 @@ def plot_targets_per_tile(fig, gs, target_count_by_range, targets_per_tile,
     if i > 0:
         completeness = run_settings["completeness_targets"][i-1] * 100
         ax_tar_pt.text(0.5, 0.4, "%5.2f %% Completion" % completeness,
-                     ha="center", transform=ax_tar_pt.transAxes)
+                     ha="center", transform=ax_tar_pt.transAxes, fontsize=leg_siz)
     
     ax_tar_pt.text(0.5, 0.5, "Mean: %i, Median: %i" % (tile_mean, 
                                                      tile_median),
-                 ha="center", transform=ax_tar_pt.transAxes)
+                 ha="center", transform=ax_tar_pt.transAxes, fontsize=leg_siz)
     
     ax_tar_pt.text(0.5, 0.6, 
                  "{:,} Unique Targets".format(unique_targets_range[i]),
-                 ha="center", transform=ax_tar_pt.transAxes)
+                 ha="center", transform=ax_tar_pt.transAxes, fontsize=leg_siz)
                  
     ax_tar_pt.text(0.5, 0.7, 
                  "{:,} Tiles".format(len(tiles_by_mag_range[i])),
-                 ha="center", transform=ax_tar_pt.transAxes)
+                 ha="center", transform=ax_tar_pt.transAxes, fontsize=leg_siz)
                  
     return ax_tar_pt
     
 def plot_standards_per_tile(fig, gs, standard_count_by_range, 
                             standards_per_tile, run_settings, i, colour, 
-                            label):
+                            label, leg_siz=4, axis_siz=5):
     """
     """
     # Plot a histogram of the number of standards per tile
@@ -188,14 +192,14 @@ def plot_standards_per_tile(fig, gs, standard_count_by_range,
     ax_std_pt.vlines(run_settings["STANDARDS_PER_TILE"], 
                    ax_std_pt.get_ylim()[0], ax_std_pt.get_ylim()[1], 
                    linestyles='dashed', colors='k', 
-                   label='Ideally-filled tile')
+                   label='Ideally-filled tile', linewidth=1)
     ax_std_pt.vlines(run_settings["STANDARDS_PER_TILE_MIN"],
                    ax_std_pt.get_ylim()[0], ax_std_pt.get_ylim()[1],
                    linestyles='dotted',  colors='k', 
-                   label='Minimum standards per tile')
-    ax_std_pt.set_xlabel('No. of standards per tile')
-    ax_std_pt.set_ylabel('Frequency')
-    ax_std_pt.legend(loc='upper center')
+                   label='Minimum standards per tile', linewidth=1)
+    ax_std_pt.set_xlabel('No. of standards per tile', fontsize=axis_siz)
+    ax_std_pt.set_ylabel('Frequency', fontsize=axis_siz)
+    ax_std_pt.legend(loc='upper center', prop={'size': leg_siz})
     ax_std_pt.set_xlim(0, max(standards_per_tile) + 1)
     #ax_std_pt.xaxis.set_major_locator(ticker.MultipleLocator(2))
     
@@ -211,12 +215,12 @@ def plot_standards_per_tile(fig, gs, standard_count_by_range,
     
     ax_std_pt.text(ax_std_pt.get_xlim()[1]/2, ax_std_pt.get_ylim()[1]/2,
                  "Mean: %i, Median: %i" % (standard_mean, standard_median), 
-                 ha="center")    
+                 ha="center", fontsize=leg_siz)    
                  
     return ax_std_pt
     
 def plot_guides_per_tile(fig, gs, guide_count_by_range, guides_per_tile,
-                         run_settings, i, colour, label):
+                         run_settings, i, colour, label, leg_siz=4, axis_siz=5):
     """
     """
     # Plot a histogram of the number of guides per tile
@@ -225,14 +229,14 @@ def plot_guides_per_tile(fig, gs, guide_count_by_range, guides_per_tile,
                  color=colour, align='right', label=label)
     ax_gde_pt.vlines(run_settings["GUIDES_PER_TILE"], ax_gde_pt.get_ylim()[0], 
                    ax_gde_pt.get_ylim()[1], linestyles='dashed', colors='k', 
-                   label='Ideally-filled tile')
+                   label='Ideally-filled tile', linewidth=1)
     ax_gde_pt.vlines(run_settings["GUIDES_PER_TILE_MIN"], 
                    ax_gde_pt.get_ylim()[0], ax_gde_pt.get_ylim()[1],
                    linestyles='dotted', colors='k', 
-                   label='Minimum guides per tile')
-    ax_gde_pt.set_xlabel('No. of guides per tile')
-    ax_gde_pt.set_ylabel('Frequency')
-    ax_gde_pt.legend(loc='upper center')
+                   label='Minimum guides per tile', linewidth=1)
+    ax_gde_pt.set_xlabel('No. of guides per tile', fontsize=axis_siz)
+    ax_gde_pt.set_ylabel('Frequency', fontsize=axis_siz)
+    ax_gde_pt.legend(loc='upper center', prop={'size': leg_siz})
     ax_gde_pt.set_xlim(0, max(guides_per_tile) + 1)
     ax_gde_pt.xaxis.set_major_locator(ticker.MultipleLocator(1))
     
@@ -248,29 +252,32 @@ def plot_guides_per_tile(fig, gs, guide_count_by_range, guides_per_tile,
     
     ax_gde_pt.text(ax_gde_pt.get_xlim()[1]/2, ax_gde_pt.get_ylim()[1]/2,
                  "Mean: %i, Median: %i" % (guides_mean, guides_median), 
-                                           ha="center") 
+                                           ha="center", fontsize=leg_siz) 
     
     return ax_gde_pt 
     
     
 def plot_sky_per_tile(fig, gs, sky_count_by_range, sky_per_tile, run_settings, 
-                      i, colour, label):
+                      i, colour, label, leg_siz=4, axis_siz=5):
     # Plot a histogram of the number of sky per tile
     ax_sky_pt = fig.add_subplot(gs)
     ax_sky_pt.hist(sky_count_by_range[i], bins=max(sky_per_tile), 
                  color=colour, align='right', label=label)
     ax_sky_pt.vlines(run_settings["SKY_PER_TILE"], ax_sky_pt.get_ylim()[0], 
                    ax_sky_pt.get_ylim()[1], linestyles='dashed', colors='k', 
-                   label='Ideally-filled tile')
+                   label='Ideally-filled tile', linewidth=1)
     ax_sky_pt.vlines(run_settings["SKY_PER_TILE_MIN"], 
                    ax_sky_pt.get_ylim()[0], ax_sky_pt.get_ylim()[1],
                    linestyles='dotted', colors='k', 
-                   label='Minimum sky per tile')
-    ax_sky_pt.set_xlabel('No. of sky per tile')
-    ax_sky_pt.set_ylabel('Frequency')
-    ax_sky_pt.legend(loc='upper center')
+                   label='Minimum sky per tile', linewidth=1)
+    ax_sky_pt.set_xlabel('No. of sky per tile', fontsize=axis_siz)
+    ax_sky_pt.set_ylabel('Frequency', fontsize=axis_siz)
+    ax_sky_pt.legend(loc='upper center', prop={'size': leg_siz})
     ax_sky_pt.set_xlim(0, max(sky_per_tile) + 1)
     ax_sky_pt.xaxis.set_major_locator(ticker.MultipleLocator(1))
+    
+    ax_sky_pt.tick_params(axis='both', which='major', labelsize=5)
+    ax_sky_pt.tick_params(axis='both', which='minor', labelsize=5)
     
     if len(sky_count_by_range[i]) > 0:
         sky_mean = np.mean(sky_count_by_range[i])
@@ -281,7 +288,7 @@ def plot_sky_per_tile(fig, gs, sky_count_by_range, sky_per_tile, run_settings,
     
     ax_sky_pt.text(ax_sky_pt.get_xlim()[1]/2, ax_sky_pt.get_ylim()[1]/2,
                  "Mean: %i, Median: %i" % (sky_mean, sky_median), 
-                                           ha="center") 
+                                           ha="center", fontsize=leg_siz) 
 
     return ax_sky_pt 
     
@@ -341,31 +348,38 @@ def plot_target_histogram_grid(fig, gs, gs_xy, target_count_by_range,
     return [ax_tar_pt, ax_std_pt, ax_gde_pt, ax_sky_pt]
 
 
-def plot_priority_histogram(fig, gs, priority_count_by_range, run_settings, 
-                            tile_count_labels):
+def plot_priority_histogram(fig, gs, gs_xy, priority_count_by_range, 
+                            run_settings, tile_count_labels, leg_siz=5, axis_siz=5):
     """
     """
     priorities = [0, 1, 2, 3, 4, 5]
     
+    ax_priority = []
+    
     for range_i, label in enumerate(tile_count_labels):
         count = [priority_count_by_range[range_i][i] for i in priorities]
-        ax_priority = fig.add_subplot(gs[6,2+range_i])
-        ax_priority.bar(priorities, count, color="DarkOrchid", 
+        ax_priority.append(fig.add_subplot(gs[gs_xy[0]+range_i, gs_xy[1]]))
+        ax_priority[range_i].bar(priorities, count, color="DarkOrchid", 
                         label=label)
     
-        ax_priority.hlines(50000, ax_priority.get_xlim()[0], 
-               ax_priority.get_xlim()[1], lw=.75, colors='k', 
-               linestyles='dashed', label="50,000")
-        ax_priority.set_xlabel("Priority Level")
-        ax_priority.set_ylabel("Number of Targets Observed")
-        ax_priority.legend(loc='upper center')
-        ax_priority.set_xlim(0, 6)
-        ax_priority.xaxis.set_major_locator(ticker.MultipleLocator(1))
-        ax_priority.tick_params(axis='both', which='major', labelsize=7)
-        ax_priority.tick_params(axis='both', which='minor', labelsize=7)
-        ax_priority.grid(True)
-        ax_priority.set_yscale('log')
-
+        ax_priority[range_i].hlines(50000, ax_priority[range_i].get_xlim()[0], 
+               ax_priority[range_i].get_xlim()[1], lw=.75, colors='k', 
+               linestyles='dashed', label="50,000", linewidth=1)
+        ax_priority[range_i].set_xlabel("Priority Level", fontsize=axis_siz)
+        ax_priority[range_i].set_ylabel("Number of Targets Observed", fontsize=axis_siz)
+        ax_priority[range_i].legend(loc='upper center', prop={'size': leg_siz})
+        ax_priority[range_i].set_xlim(0, 6)
+        ax_priority[range_i].xaxis.set_major_locator(ticker.MultipleLocator(1))
+        ax_priority[range_i].tick_params(axis='both', which='major', labelsize=7)
+        ax_priority[range_i].tick_params(axis='both', which='minor', labelsize=7)
+        ax_priority[range_i].grid(True)
+        ax_priority[range_i].set_yscale('log')
+        
+        ax_priority[range_i].tick_params(axis='both', which='major', labelsize=5)
+        ax_priority[range_i].tick_params(axis='both', which='minor', labelsize=5)
+        
+    ax_priority[0].set_title("Priority Completion")
+        
     return ax_priority 
 
 
@@ -483,24 +497,40 @@ def plot_tiling(tiling, run_settings):
     # -------------------------------------------------------------------------
     name = "results/" + run_settings["run_id"] + "_tiling_run_overview.pdf"
     with PdfPages(name) as pdf:
+        # ---------------------------------------------------------------------
+        # Page 1
+        # ---------------------------------------------------------------------
         plt.clf()
-        gs = gridspec.GridSpec(7,7)
+        gs = gridspec.GridSpec(6,6)
         gs.update(wspace=0.2)
         fig = plt.gcf()
-        #fig.set_size_inches(8.3, 11.7)
-        fig.set_size_inches(28.8, 24.) # A4 Paper
-        plt.suptitle(run_settings["run_id"] + ": " + run_settings["description"], 
-                     fontsize=10)
+        fig.set_size_inches(8.3, 11.7) # A4 Paper
+        #fig.set_size_inches(28.8, 24.) 
+        plt.suptitle("[Page 1] %s: %s" % (run_settings["run_id"], 
+                     run_settings["description"]), fontsize=10)
     
         # Tile positions
-        ax_tile_pos = plot_tile_pos(fig, gs[0:2,0:2], tiling)
+        ax_tile_pos = plot_tile_pos(fig, gs[0:3,0:3], tiling)
 
         # Table of Run Settings
         # Plot a table for referencing the run settings/results
-        ax_tab = plot_settings_table(fig, gs[2:5,0:2], run_settings)
-    
+        ax_tab = plot_settings_table(fig, gs[1:5,4:], run_settings)
+        
+        pdf.savefig()
+        plt.close()
+        
+        # ---------------------------------------------------------------------
+        # Page 2
+        # ---------------------------------------------------------------------
+        # Assigned target, standard, guide, and sky histograms
+        gs = gridspec.GridSpec(5,4)
+        gs.update(wspace=0.3)
+        fig = plt.gcf()
+        fig.set_size_inches(8.3, 11.7) # A4 Paper
+        plt.suptitle("[Page 2]", fontsize=10)
+        
         # Create plots for all tiles, as well as each magnitude range
-        ax_tgt_hists =  plot_target_histogram_grid(fig, gs, [0,2], 
+        ax_tgt_hists =  plot_target_histogram_grid(fig, gs, [0,0], 
                                                    target_count_by_range, 
                                                    targets_per_tile, 
                                                    unique_targets_range, 
@@ -511,40 +541,52 @@ def plot_tiling(tiling, run_settings):
                                                    guides_per_tile, 
                                                    sky_count_by_range, sky_per_tile,
                                                    run_settings, tile_count_labels)
-                                               
-        # Priorities
-        ax_priority = plot_priority_histogram(fig, gs, priority_count_by_range, 
+        
+        pdf.savefig()
+        plt.close()
+        
+        # ---------------------------------------------------------------------
+        # Page 3
+        # ---------------------------------------------------------------------
+        # Priority histograms
+        gs = gridspec.GridSpec(5,3)
+        gs.update(wspace=0.3)
+        fig = plt.gcf()
+        fig.set_size_inches(8.3, 11.7) # A4 Paper
+        plt.suptitle("[Page 3]", fontsize=10)        
+                         
+        ax_priority = plot_priority_histogram(fig, gs, [0,1],
+                                              priority_count_by_range, 
                                               run_settings, tile_count_labels)
         pdf.savefig()
         plt.close()
         
-        
+        # ---------------------------------------------------------------------
+        # Page 4
+        # ---------------------------------------------------------------------
         # All target map
         plt_colours = ["SkyBlue","Gold","Orange", "Tomato"]
         
         fig = plt.gcf()
-        fig.set_size_inches(28.8, 24.)
+        fig.set_size_inches(11.7, 8.3)
         ax_target_pos = fig.add_subplot(111, projection='aitoff')
         ax_target_pos.grid(True)
+        plt.suptitle("[Page 4]", fontsize=10)   
         
         for range_i, label in enumerate(tile_count_labels[1:]):
             print range_i, label
             target_ras = np.radians(np.array([target.ra for target in targets_by_mag_range[range_i]]) - 180)
             target_decs = np.radians(np.array([target.dec for target in targets_by_mag_range[range_i]]))
 
-            ax_target_pos.plot(target_ras, target_decs, "*", label=label, markersize=0.1, fillstyle="full")
+            ax_target_pos.plot(target_ras, target_decs, ".", label=label, markersize=0.1)
             
             ax_target_pos.set_title("All Science Targets", y=1.1)
             ax_target_pos.set_xlabel("RA")
             ax_target_pos.set_ylabel("DEC")
-            ax_target_pos.legend(loc="best")
+            legend = ax_target_pos.legend(loc="best", markerscale=100)
              
         pdf.savefig(fig)
         plt.close()
-
-    # Save plot
-    #name = "results/" + run_settings["run_id"] + "_tiling_run_overview.pdf"
-    #fig.savefig(name, fmt='pdf')
     
     
 def create_tiling_visualisation(tiling, run_settings, increment=1000):
