@@ -101,7 +101,7 @@ def load_targets(catalogue, ra_min, ra_max, dec_min, dec_max, gal_lat_limit,
     # make RA cuts, but DEC will now be above the celestial equator, and we'll
     # have more stars on the plane.
     dec_max += 3
-    gal_lat_limit -= 3
+    gal_lat_limit -= 3 # FIX!
     
     start = time.time()
     all_targets = []
@@ -522,7 +522,7 @@ print "(min %d, max %d, median %d, std %2.1f)" % (min(targets_per_tile),
                                                   np.median(targets_per_tile), 
                                                   np.std(targets_per_tile))
 print "%i total targets, %i unique targets, %i duplicate targets" % \
-    fwtl.count_unique_science_targets(tiling)
+    fwtl.count_unique_science_targets(tiling, include_science_standards=True)
     
 #------------------------------------------------------------------------------
 # Saving Tiling Outputs
