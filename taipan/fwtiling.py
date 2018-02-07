@@ -708,7 +708,7 @@ class FWTiler(object):
         """
         return tl.is_within_bounds(tile, self.ra_min, self.ra_max, 
                                    self.dec_min, self.dec_max, 
-                                   compute_bounds_forcoords, gal_lat_limit)
+                                   compute_bounds_forcoords, self.gal_lat_limit)
     
     
     def generate_random_tile(self):
@@ -863,10 +863,13 @@ class FWTiler(object):
                     or ((mag_range[0] <= t.mag < mag_range_prioritise[1]))] # B
             
                 # Increase priority for targets in priority magnitude range
+                # Ensure the target is not outside of DEC or |b| lims
                 for t in candidate_targets_range:
                     if ((mag_range_prioritise[0] <= t.mag
                         < mag_range_prioritise[1])
-                        and t.priority >= self.priority_normal):
+                        and t.priority >= self.priority_normal
+                        and abs(t.gal_lat) >= self.gal_lat_lim
+                        and t.dec <= self.dec_max):
                         t.priority += self.prioritise_extra
         
             # In faintest bin, consider all targets
@@ -876,7 +879,9 @@ class FWTiler(object):
                 for t in candidate_targets_range:
                     if ( (mag_range_prioritise[0] <= t.mag 
                         < mag_range_prioritise[1])
-                        and t.priority == self.priority_normal):
+                        and t.priority >= self.priority_normal
+                        and abs(t.gal_lat) >= self.gal_lat_lim
+                        and t.dec <= self.dec_max):
                         t.priority += self.prioritise_extra
             
             print "done, # Targets=%i" % len(candidate_targets_range)      

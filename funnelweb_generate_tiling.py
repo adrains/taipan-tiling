@@ -28,6 +28,8 @@ import platform
 import funnelweb_tiling_settings as fwts
 from shutil import copyfile
 from collections import OrderedDict
+from astropy.coordinates import SkyCoord
+from astropy import units
 
 #------------------------------------------------------------------------------
 # Helper Functions
@@ -149,12 +151,13 @@ def load_targets(catalogue, ra_min, ra_max, dec_min, dec_max, gal_lat_limit,
                                                priority_normal)
                 
                 # Determine |b|
-                tile_gal_coord = SkyCoord(ra=tile.ra*units.degree, 
-                                          dec=tile.dec*units.degree).galactic
+                gal_coord = SkyCoord(ra=star["RA_ep2015"]*units.degree, 
+                                dec=star["Dec_ep2015"]*units.degree).galactic
                                                
                 target = tp.FWTarget(int(star["Gaia_ID"]), star["RA_ep2015"], 
                                      star["Dec_ep2015"], priority=priority, 
-                                     mag=star["Gaia_G_mag"], difficulty=1)
+                                     mag=star["Gaia_G_mag"], difficulty=1,
+                                     gal_lat=gal_coord.b.value)
                 
                 # Check if star is a standard (same reasoning as above for 
                 # tab_type=gaia)
