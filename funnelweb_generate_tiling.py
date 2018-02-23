@@ -149,15 +149,11 @@ def load_targets(catalogue, ra_min, ra_max, dec_min, dec_max, gal_lat_limit,
                 # Target is acceptable, create with tiling parameters
                 priority = get_target_priority(star["Gaia_ID"], priorities, 
                                                priority_normal)
-                
-                # Determine |b|
-                gal_coord = SkyCoord(ra=star["RA_ep2015"]*units.degree, 
-                                dec=star["Dec_ep2015"]*units.degree).galactic
                                                
                 target = tp.FWTarget(int(star["Gaia_ID"]), star["RA_ep2015"], 
                                      star["Dec_ep2015"], priority=priority, 
                                      mag=star["Gaia_G_mag"], difficulty=1,
-                                     gal_lat=gal_coord.b.value)
+                                     gal_lat=star["b"])
                 
                 # Check if star is a standard (same reasoning as above for 
                 # tab_type=gaia)

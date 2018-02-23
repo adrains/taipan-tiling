@@ -6,6 +6,24 @@ import numpy as np
 import pylab as pl
 from astropy.table import Table
 import random
+from collections import Counter
+
+def count_unique_priorities(target_list):
+    """Counts the number of targets at each priority level for a set of tiles.
+    
+    Returns
+    -------
+    priority_count: Counter
+        collections.Counter object, containing a dictionary with keys of
+        each priority level, and values corresponding to each time it 
+        appears.
+    """
+    target_list = set(target_list)
+    target_priorities = [target.priority for target in target_list]
+    priority_count = Counter(target_priorities)
+    
+    return priority_count
+    
 
 def gen_normal_priorities(normal, file="fw_input_catalogue.fits"):
     """Function to generate a full set of uniform priorities (i.e. no star is
@@ -193,4 +211,4 @@ def gen_stat_priorities(normal=2, stars_per_level=50000, tabdata=None,
         
     pl.legend(loc="best")
     """
-    return fw_ids, priorities, priorities_main fw_main_coords
+    return fw_ids, priorities, priorities_main, fw_main_coords
