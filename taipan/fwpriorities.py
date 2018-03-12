@@ -63,8 +63,27 @@ def gen_normal_priorities(normal, file="fw_input_catalogue.fits"):
     fits_file.close()
 
 
+def create_reduced_input_catalogue(file="fw_input_catalogue.fits", frac=100):
+    """
+    """
+    # Load fits file and two requisite tables
+    fits_file = fits.open(file, mode="update")
+    fw_input_cat = fits_file[1].data
+    
+    reduced_input_cat = fw_input_cat[::frac]
+    
+    new_name = file.replace(".fits", "_reduced_x%i.fits" % frac)
 
-def gen_stat_priorities(normal=2, stars_per_level=50000, tabdata=None, 
+    hdu = fits.BinTableHDU(data=reduced_input_cat)
+    hdu.writeto(new_name)
+
+    # Close
+    fits_file.close()
+
+    
+
+
+def gen_stat_priorities(normal=2, tabdata=None, stars_per_level=[50,50,50],
                         file="fw_input_catalogue.fits"):
     """Code to generate priorities for the FunnelWeb input catalogue, 
     assigning N stars per elevated priority, and all others to normal.
@@ -97,8 +116,6 @@ def gen_stat_priorities(normal=2, stars_per_level=50000, tabdata=None,
     ----------
     normal: int
         The normal (i.e. default) priority for an unobserved star.
-    stars_per_level: int
-        The number of stars to randomly elevate to each priority level.
     tabdata: fits.io.table
         Survey input catalogue in fits form.
     file: string
@@ -154,7 +171,7 @@ def gen_stat_priorities(normal=2, stars_per_level=50000, tabdata=None,
             fw_ids_other.append(star["Gaia_ID"])
 
     # Generate a random selection of *main survey* indices
-    num_upvoted = stars_per_level * len(priority_levels)
+    num_upvoted = sum(stars_per_level)
     random_indices = random.sample(range(len(fw_ids_main)), num_upvoted)
     assert len(random_indices) == len(set(random_indices))
     
@@ -164,8 +181,8 @@ def gen_stat_priorities(normal=2, stars_per_level=50000, tabdata=None,
     # For each priority level, assign the associated initial priority to 
     # stars_per_level stars using the randomly selected IDs
     for level, priority in enumerate(priority_levels):
-        range_start = level * stars_per_level
-        range_end = (level + 1) * stars_per_level
+        range_start = sum(stars_per_level[:level])
+        range_end = sum(stars_per_level[:level+1])
 
         for star_i in random_indices[range_start:range_end]:
             priorities_main[star_i] = priority
@@ -188,7 +205,11 @@ def gen_stat_priorities(normal=2, stars_per_level=50000, tabdata=None,
 
     hdu = fits.BinTableHDU.from_columns(id_col + priority_col)
 
-    hdu.writeto("fw_stat_%i_priorities.fits" % stars_per_level, overwrite=True)
+    string_rep = ""
+    for level in stars_per_level: 
+        string_rep += str(level) + "-"
+
+    hdu.writeto("fw_stat_%s_priorities.fits" % string_rep[:-1], overwrite=True)
     
     # Plot the coordinates of the high priority stars for sanity checking
     """

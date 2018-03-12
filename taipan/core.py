@@ -2399,7 +2399,8 @@ class FWTarget(TaipanTarget):
     def __init__(self, idn, ra, dec, usposn=None, priority=1, standard=False,
                  guide=False, difficulty=0, mag=None,
                  h0=False, vpec=False, lowz=False, science=True,
-                 assign_science=True, sky=False, gal_lat=None):
+                 assign_science=True, sky=False, gal_lat=None, survey=None,
+                 reobserve=None):
         """
         Parameters
         ----------
@@ -2434,6 +2435,13 @@ class FWTarget(TaipanTarget):
             Denotes this target as a science target. Defaults to False.
         gal_lat: float or None
             The Galactic latitude of the target
+        survey: string or None
+            A string value indicating which FunnelWeb survey (e.g. main) the
+            target belongs to.
+        reobserve: boolean
+            Boolean indicating whether this target is in a survey that allows
+            reobservation, and thus whether it is to have its priority reduced
+            after being observed once.
         """
         # Initialise the base class
         TaipanTarget.__init__(self, idn, ra, dec, usposn, priority, standard,
@@ -2451,6 +2459,24 @@ class FWTarget(TaipanTarget):
         def gal_lat(self, value):
             value = float(value)
             self._gal_lat = value
+            
+        @property
+        def survey(self):
+            return self._survey
+
+        @survey.setter
+        def survey(self, value):
+            value = float(value)
+            self._survey = value
+            
+        @property
+        def reobserve(self):
+            return self._reobserve
+
+        @reobserve.setter
+        def reobserve(self, value):
+            value = float(value)
+            self._reobserve = value
         
     def __repr__(self):
         return 'FW TGT %s' % str(self._idn)

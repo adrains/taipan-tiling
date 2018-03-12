@@ -19,16 +19,18 @@ import taipan.core as tp
 from collections import OrderedDict
 
 # Input catalogue and priority list
-input_catalogue = ("/priv/mulga1/arains/Catalogues/fw_input_catalogue.fits")
-input_priorities = ("/priv/mulga1/arains/Catalogues/fw_priorities.fits")
-sky_catalogue = ("/priv/mulga1/arains/Catalogues/"
+input_catalogue = ("/priv/mulga1/arains/funnelweb/fw_input_catalogue.fits")
+
+sky_catalogue = ("/priv/mulga1/arains/funnelweb/"
                  "skyfibers_v17_gaia_ucac4_final.fits")
+                 
+surveys_folder = ("/priv/mulga1/arains/funnelweb/surveys/")
 
 # Ordered dictionary, so that format is always the same when writing to a file 
 
 # Dictionary of *all* parameters required to construct taipan.fwtiling.FWTiler
 # e.g. fwtiler = FWTiler(**tiler_input)
-tiler_input = OrderedDict([("completeness_targets", [0.99, 0.99, 0.99, 0.99]),
+tiler_input = OrderedDict([("completeness_targets", [0.95, 0.95, 0.95, 0.95]),
                            ("ranking_method", "priority-expsum"),
                            ("disqualify_below_min", True),
                            ("tiling_method", "SH"),
@@ -39,7 +41,7 @@ tiler_input = OrderedDict([("completeness_targets", [0.99, 0.99, 0.99, 0.99]),
                            ("ra_max", 360),
                            ("dec_min", -90),
                            ("dec_max", 0),
-                           ("gal_lat_limit", 0),
+                           ("gal_lat_limit", 10),
                            ("mag_ranges", 
                            [[5.5, 8.5],[7.5, 10.5],[9.5, 12.5],[11.5, 14.5]]),
                            ("mag_ranges_prioritise", 
@@ -65,9 +67,7 @@ tiler_input = OrderedDict([("completeness_targets", [0.99, 0.99, 0.99, 0.99]),
  
 # Dictionary of additional parameters not required by FWTiler            
 script_settings = OrderedDict([("input_catalogue", input_catalogue),
-                               ("input_priorities", input_priorities),
                                ("sky_catalogue", sky_catalogue),
-                               ("tab_type", "fw"),
                                ("standard_frac", 0.1),
                                ("guide_range", [8,10.5]),
                                ("TARGET_PER_TILE", 139),
@@ -82,4 +82,13 @@ script_settings = OrderedDict([("input_catalogue", input_catalogue),
                                ("QUAD_PER_RADII", [3, 3, 1]),
                                ("use_colour_cut", True),
                                ("colour_index_cut", 0.5)])
-                        
+                               
+# Dictionary to record details of the different FunnelWeb supp/priority surveys
+surveys = OrderedDict([("priority-standard-crossover-galah", [4, False]),
+                       #("priority-std-crossover-gaia-eso-south", [4, False]),
+                       ("priority-m-dwarf", [4, False]),
+                       ("priority-emp", [4, False]),
+                       #("supp-std-crossover-gaia-eso-north", [4, False]),
+                       ("supp-m-dwarf", [4, False]),
+                       ("supp-emp", [4, False]),
+                       ("supp-young-star", [4, False])])

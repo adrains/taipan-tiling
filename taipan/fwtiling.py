@@ -868,7 +868,7 @@ class FWTiler(object):
                     if ((mag_range_prioritise[0] <= t.mag
                         < mag_range_prioritise[1])
                         and t.priority >= self.priority_normal
-                        and abs(t.gal_lat) >= self.gal_lat_lim
+                        and abs(t.gal_lat) >= self.gal_lat_limit
                         and t.dec <= self.dec_max):
                         t.priority += self.prioritise_extra
         
@@ -880,7 +880,7 @@ class FWTiler(object):
                     if ( (mag_range_prioritise[0] <= t.mag 
                         < mag_range_prioritise[1])
                         and t.priority >= self.priority_normal
-                        and abs(t.gal_lat) >= self.gal_lat_lim
+                        and abs(t.gal_lat) >= self.gal_lat_limit
                         and t.dec <= self.dec_max):
                         t.priority += self.prioritise_extra
             
