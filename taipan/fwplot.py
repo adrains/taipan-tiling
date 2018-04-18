@@ -29,7 +29,7 @@ def plot_tile_pos(fig, gs, tiling, axis_siz=5):
     ax_tile_pos_plt = ax_tile_pos.scatter(np.radians(coords[:,0] - 180.), 
                           np.radians(coords[:,1]), c=coords[:,2], marker='o',
                           lw=0, s=30, cmap="rainbow")
-    ax_tile_pos.set_title('Tile centre positions', fontsize=8, y=1.0)
+    ax_tile_pos.set_title('Tile centre positions', fontsize=10, y=1.0)
     ax_tile_pos.set_axisbelow(True)
     
     
@@ -425,8 +425,36 @@ def plot_priority_histogram(fig, gs, gs_xy, priority_count_by_range,
         
     return ax_priority 
 
+def plot_on_sky_targets(fig, tile_count_labels, targets_by_mag_range, cut):
+    """
+    """
+    ax_target_pos = fig.add_subplot(111, projection='aitoff')
+    ax_target_pos.grid(True)
+    plt_colours = ["mediumorchid", "SkyBlue","Orange", "Maroon"]
+    colour_cycler = cycle(plt_colours)
+    
+    for range_i, label in enumerate(tile_count_labels[1:]):
+        # Match the colours for each magnitude range
+        colour = next(colour_cycler)
+        
+        print range_i, label
+        ra_deg = [target.ra for target in targets_by_mag_range[range_i]]
+        target_ras = np.radians(np.array(ra_deg) - 180)
+        dec_deg = [target.dec for target in targets_by_mag_range[range_i]]
+        target_decs = np.radians(np.array(dec_deg))
 
-def plot_tiling(tiling, run_settings):
+        ax_target_pos.plot(target_ras[::cut], target_decs[::cut], ".", 
+                           label=label, markersize=0.1, color=colour)
+        
+        ax_target_pos.set_title("All Science Targets", fontsize=8)
+        ax_target_pos.set_xlabel("RA")
+        ax_target_pos.set_ylabel("DEC")
+        legend = ax_target_pos.legend(loc="best", markerscale=100)
+        
+    return ax_target_pos
+
+
+def plot_tiling(tiling, run_settings, plot_paper_figures=False):
     """Function to plot an overview of a FunnelWeb tiling run.
     
     Plots:
@@ -449,6 +477,10 @@ def plot_tiling(tiling, run_settings):
     plot_other: boolean
         Whether to plot box-and-whisker and completeness target plots, or 
         instead plot the variable table in a larger format.
+    
+    plot_paper_figures: boolean
+        Whether to plot figures for the FunnelWeb Survey definition paper,
+        or the standard end-of-tiling run figures.
     """
     # -------------------------------------------------------------------------
     # Preparation and Analysis
@@ -539,6 +571,51 @@ def plot_tiling(tiling, run_settings):
         unique_targets_range.append(unique)                   
     
     # -------------------------------------------------------------------------
+    # Plotting for paper
+    # ------------------------------------------------------------------------- 
+    tile_density = "results/" + run_settings["run_id"] + "_tile_density.pdf" 
+    histograms = "results/" + run_settings["run_id"] + "_histograms.pdf"  
+    on_sky_targets = "results/" + run_settings["run_id"] + "_targets.pdf" 
+    
+    if plot_paper_figures:
+        # Tile_density
+        plt.clf()
+        gs = gridspec.GridSpec(1,1)
+        gs.update(wspace=0.2)
+        fig = plt.gcf()
+        fig.set_size_inches(11.7,8.3) # A4 Paper
+        plot_tile_pos(fig, gs[:,:], tiling)
+        
+        plt.savefig(tile_density, bbox_inches="tight")
+        
+        # Histograms
+        plt.clf()
+        gs = gridspec.GridSpec(5,4)
+        gs.update(wspace=0.3)
+        fig = plt.gcf()
+        fig.set_size_inches(8.3, 11.7) # A4 Paper
+        plot_target_histogram_grid(fig, gs, [0,0], target_count_by_range, 
+                                   targets_per_tile, unique_targets_range, 
+                                   tiles_by_mag_range, standard_count_by_range, 
+                                   standards_per_tile, guide_count_by_range,
+                                   guides_per_tile, sky_count_by_range, 
+                                   sky_per_tile, run_settings, 
+                                   tile_count_labels)
+        
+        plt.savefig(histograms, bbox_inches="tight")
+        
+        # On Sky Targets
+        plt.clf()
+        fig = plt.gcf()
+        fig.set_size_inches(11.7, 8.3)
+        ax_target_pos = plot_on_sky_targets(fig, tile_count_labels, 
+                                            targets_by_mag_range, 10)
+        
+        plt.savefig(on_sky_targets, bbox_inches="tight")
+        
+        return
+        
+    # -------------------------------------------------------------------------
     # Plotting
     # -------------------------------------------------------------------------
     name = "results/" + run_settings["run_id"] + "_tiling_run_overview.pdf"
@@ -614,29 +691,14 @@ def plot_tiling(tiling, run_settings):
         # Page 4
         # ---------------------------------------------------------------------
         # All target map
-        plt_colours = ["SkyBlue","Gold","Orange", "Tomato"]
-        
         fig = plt.gcf()
         fig.set_size_inches(11.7, 8.3)
-        ax_target_pos = fig.add_subplot(111, projection='aitoff')
-        ax_target_pos.grid(True)
+        
         plt.suptitle("[Page 4]", fontsize=10)   
         
-        for range_i, label in enumerate(tile_count_labels[1:]):
-            print range_i, label
-            ra_deg = [target.ra for target in targets_by_mag_range[range_i]]
-            target_ras = np.radians(np.array(ra_deg) - 180)
-            dec_deg = [target.dec for target in targets_by_mag_range[range_i]]
-            target_decs = np.radians(np.array(dec_deg))
+        ax_target_pos = plot_on_sky_targets(fig, tile_count_labels, 
+                                            targets_by_mag_range, 1)
 
-            ax_target_pos.plot(target_ras, target_decs, ".", label=label, 
-                               markersize=0.1)
-            
-            ax_target_pos.set_title("All Science Targets", fontsize=8)
-            ax_target_pos.set_xlabel("RA")
-            ax_target_pos.set_ylabel("DEC")
-            legend = ax_target_pos.legend(loc="best", markerscale=100)
-             
         pdf.savefig(fig)
         plt.close()
     
